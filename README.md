@@ -43,9 +43,15 @@ The repository follows Semantic Versioning. The extension version in `manifest.j
 ```bash
 npm test
 git diff --check
-git tag v0.2.0
+git tag v0.2.1
 git push origin main --tags
 ```
+
+## Console troubleshooting
+
+Most messages in a YouTube DevTools console are not produced by the page’s own extension. Messages mentioning `Grammarly.js` belong to Grammarly; `couponCollection.js`, `affiliateCashback.js`, and `chrome-extension://invalid/` belong to another installed extension; preload and `generate_204` notices belong to YouTube or the browser; and the Google Ads CORS message is part of YouTube’s own conversion request. These messages should not be “fixed” in SkipIt.
+
+The relevant extension warning is `Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.` It can occur when a content page is connected to a service worker that is asleep, has been reloaded, or belongs to an older unpacked-extension instance. SkipIt 0.2.1 consumes this error in the message callback and continues the skip action even when statistics delivery is unavailable. After updating, reload the extension on `chrome://extensions` or `edge://extensions`, then refresh the YouTube tab so the page no longer uses the old content script.
 
 ## Limitations and responsibility
 

@@ -120,10 +120,15 @@
   const reportSkipped = (kind) => {
     try {
       chrome.runtime.sendMessage({ type: 'AD_SKIPPED', kind }, () => {
-        void chrome.runtime.lastError;
+        // Chrome exposes a harmless connection error when the worker is asleep,
+        // the extension was reloaded, or the page belongs to an old instance.
+        // Reading lastError in the callback intentionally consumes it.
+        const connectionError = chrome.runtime.lastError;
+        if (connectionError) log('Statistics worker unavailable:', connectionError.message);
       });
-    } catch (_error) {
-      // The service worker may be asleep or unavailable; skipping must continue locally.
+    } catch (error) {
+      log('Statistics message could not be sent:', error);
+      // Skipping must continue locally even when the worker is unavailable.
     }
   };
 

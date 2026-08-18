@@ -5,13 +5,20 @@ const resetButton = document.querySelector('#reset');
 const status = document.querySelector('#status');
 
 const send = (message) => new Promise((resolve) => {
-  chrome.runtime.sendMessage(message, (response) => {
-    if (chrome.runtime.lastError) {
-      resolve(null);
-      return;
-    }
-    resolve(response);
-  });
+  try {
+    chrome.runtime.sendMessage(message, (response) => {
+      // Always read lastError inside the callback. This prevents the browser
+      // from reporting an unchecked error when the worker is unavailable.
+      const connectionError = chrome.runtime.lastError;
+      if (connectionError) {
+        resolve(null);
+        return;
+      }
+      resolve(response);
+    });
+  } catch (_error) {
+    resolve(null);
+  }
 });
 
 const render = (state) => {

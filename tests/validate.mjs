@@ -57,6 +57,9 @@ assert.ok(background.includes('RESET_STATS'));
 assert.ok(popup.includes('GET_STATE'));
 assert.ok(popup.includes('enabled'));
 assert.ok(!content.includes('fetch('));
+assert.ok(content.includes('chrome.runtime.lastError'));
+assert.ok(popup.includes('chrome.runtime.lastError'));
+assert.ok(!content.match(/sendMessage\([^;]+\)\.catch/));
 assert.ok(!background.includes('fetch('));
 
 console.log(`SkipIt ${version}: validation passed`);
