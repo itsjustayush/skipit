@@ -1,0 +1,9 @@
+{
+  "name": "skipit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Manifest V3 YouTube skip-control extension for Chrome and Edge",
+  "scripts": {
+    "test": "node tests/validate.mjs && node tests/content-smoke.mjs"
+  }
+}

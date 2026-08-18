@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkipIt</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="panel">
+    <header>
+      <h1>SkipIt</h1>
+      <p>Automatic YouTube skip controls</p>
+    </header>
+
+    <label class="switch-row" for="enabled">
+      <span>Enabled</span>
+      <input id="enabled" type="checkbox" role="switch">
+    </label>
+
+    <section class="stats" aria-live="polite">
+      <div>
+        <span class="label">Controls activated</span>
+        <strong id="skipped-count">0</strong>
+      </div>
+      <div>
+        <span class="label">Last activation</span>
+        <strong id="last-skipped">Never</strong>
+      </div>
+    </section>
+
+    <button id="reset" type="button">Reset statistics</button>
+    <p id="status" class="status" role="status"></p>
+    <p class="notice">SkipIt only acts on visible YouTube skip or overlay-close controls. It does not remove unskippable ads.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
