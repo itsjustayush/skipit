@@ -4,7 +4,7 @@ SkipIt is a small Manifest V3 extension for Chromium-based browsers. When a visi
 
 ## Supported browsers
 
-SkipIt targets Chrome, Microsoft Edge, and other Chromium browsers that support Manifest V3. The extension is scoped to YouTube and YouTube’s no-cookie embed domain.
+SkipIt targets Chrome, Microsoft Edge, and other Chromium browsers that support Manifest V3. The extension is scoped to YouTube, YouTube’s mobile host, and YouTube’s no-cookie embed domain.
 
 ## Development installation
 
@@ -16,6 +16,10 @@ SkipIt targets Chrome, Microsoft Edge, and other Chromium browsers that support 
 
 The content script starts at `document_start`, then initializes as soon as the document is available. YouTube’s single-page navigation events, DOM mutations, visibility changes, and a throttled fallback scan are all used to trigger checks.
 
+## Features preserved from the original local version
+
+The original local implementation contributed a useful **today versus total statistics** model, a popup toggle, overlay-close selectors, mobile YouTube host coverage, and the first set of icon assets. Those capabilities are now integrated into the versioned SkipIt codebase. The original background worker also revealed a missing `DEFAULT_STATS` declaration, which is fixed here by defining and normalizing the statistics state in one place.
+
 ## Design notes
 
 The implementation deliberately uses narrow, player-oriented selectors and only activates controls that are visible, connected, enabled, inside the viewport, and not contained by hidden ancestors. The extension uses local storage for the enable setting and optional activation statistics. No analytics or remote requests are included.
@@ -24,22 +28,22 @@ The service worker is used only for local state and statistics. It does not keep
 
 ## Validation
 
-Run the static validation suite with:
+Run the static validation and content-script smoke tests with:
 
 ```bash
 npm test
 ```
 
-The test suite checks the manifest, required files, syntax, scoped permissions, version consistency, and important implementation safeguards. It does not replace manual browser testing with a current YouTube ad because ad delivery and markup are controlled by YouTube.
+The test suite checks the manifest, required files, syntax, scoped permissions, version consistency, icon assets, and important implementation safeguards. It does not replace manual browser testing with a current YouTube ad because ad delivery and markup are controlled by YouTube.
 
 ## Release process
 
-The repository follows Semantic Versioning. The extension version in `manifest.json` and `VERSION` must match the release version, and each release should have a corresponding changelog entry and Git tag.
+The repository follows Semantic Versioning. The extension version in `manifest.json`, `package.json`, and `VERSION` must match the release version, and each release should have a corresponding changelog entry and Git tag.
 
 ```bash
 npm test
 git diff --check
-git tag v0.1.0
+git tag v0.2.0
 git push origin main --tags
 ```
 

@@ -1,6 +1,6 @@
-const enabledInput = document.querySelector('#enabled');
-const skippedCount = document.querySelector('#skipped-count');
-const lastSkipped = document.querySelector('#last-skipped');
+const enabledToggle = document.querySelector('#enabled-toggle');
+const todayValue = document.querySelector('#today');
+const totalValue = document.querySelector('#total');
 const resetButton = document.querySelector('#reset');
 const status = document.querySelector('#status');
 
@@ -14,28 +14,21 @@ const send = (message) => new Promise((resolve) => {
   });
 });
 
-const formatLastSkipped = (timestamp) => {
-  if (!timestamp) return 'Never';
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'short',
-    timeStyle: 'short'
-  }).format(new Date(timestamp));
-};
-
 const render = (state) => {
   if (!state) return;
-  enabledInput.checked = state.enabled !== false;
-  skippedCount.textContent = String(state.skippedCount || 0);
-  lastSkipped.textContent = formatLastSkipped(state.lastSkippedAt);
+  const stats = state.stats || {};
+  enabledToggle.checked = state.enabled !== false;
+  todayValue.textContent = String(stats.todaySkipped || 0);
+  totalValue.textContent = String(stats.totalSkipped || 0);
 };
 
 const refresh = async () => {
   render(await send({ type: 'GET_STATE' }));
 };
 
-enabledInput.addEventListener('change', async () => {
-  await chrome.storage.local.set({ enabled: enabledInput.checked });
-  status.textContent = enabledInput.checked ? 'Enabled' : 'Disabled';
+enabledToggle.addEventListener('change', async () => {
+  const response = await send({ type: 'TOGGLE_ENABLED', enabled: enabledToggle.checked });
+  status.textContent = response?.ok ? (enabledToggle.checked ? 'Enabled' : 'Disabled') : 'Unable to update setting';
   window.setTimeout(() => {
     status.textContent = '';
   }, 1200);
@@ -44,7 +37,7 @@ enabledInput.addEventListener('change', async () => {
 resetButton.addEventListener('click', async () => {
   const response = await send({ type: 'RESET_STATS' });
   if (response?.ok) {
-    await refresh();
+    render(response);
     status.textContent = 'Statistics reset';
   } else {
     status.textContent = 'Unable to reset statistics';

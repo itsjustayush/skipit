@@ -28,7 +28,7 @@ assert.ok(!manifest.permissions.includes('scripting'));
 assert.ok(!manifest.host_permissions.includes('<all_urls>'));
 assert.ok(manifest.host_permissions.every((host) => host.includes('youtube')));
 
-for (const file of ['manifest.json', 'content.js', 'background.js', 'popup.html', 'popup.js', 'popup.css', 'README.md', 'CHANGELOG.md', 'VERSION']) {
+for (const file of ['manifest.json', 'content.js', 'background.js', 'popup.html', 'popup.js', 'popup.css', 'README.md', 'CHANGELOG.md', 'VERSION', 'icons/icon-16.png', 'icons/icon-32.png', 'icons/icon-48.png', 'icons/icon-128.png']) {
   assert.ok(existsSync(path.join(root, file)), `${file} must exist`);
 }
 
@@ -49,6 +49,9 @@ for (const [needle, description] of [
   assert.ok(content.includes(needle), `${description} must be present in content.js`);
 }
 
+assert.ok(background.includes('DEFAULT_STATS'));
+assert.ok(background.includes('todaySkipped'));
+assert.ok(background.includes('totalSkipped'));
 assert.ok(background.includes('AD_SKIPPED'));
 assert.ok(background.includes('RESET_STATS'));
 assert.ok(popup.includes('GET_STATE'));
