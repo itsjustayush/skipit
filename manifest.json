@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SkipIt",
-  "version": "0.2.1",
-  "description": "Automatically activates visible YouTube Skip Ad controls when they become available.",
+  "version": "0.3.0",
+  "description": "Automatically clicks YouTube Skip Ad buttons, closes overlays, mutes, accelerates, and auto-seeks ad video in foreground and background tabs.",
   "action": {
     "default_title": "SkipIt",
     "default_popup": "popup.html",

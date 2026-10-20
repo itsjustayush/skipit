@@ -5,7 +5,10 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const root = existsSync(path.join(currentDir, 'manifest.json'))
+  ? currentDir
+  : path.resolve(currentDir, '..');
 const read = (file) => readFile(path.join(root, file), 'utf8');
 
 const manifest = JSON.parse(await read('manifest.json'));
@@ -44,7 +47,9 @@ for (const [needle, description] of [
   ['aria-label*="Skip ad" i', 'accessible skip selector'],
   ['WeakSet', 'duplicate activation protection'],
   ['chrome.storage.onChanged', 'live settings updates'],
-  ['chrome.runtime.sendMessage', 'local statistics reporting']
+  ['chrome.runtime.sendMessage', 'local statistics reporting'],
+  ['playbackRate', 'ad media acceleration'],
+  ['visibilityState', 'background-tab handling']
 ]) {
   assert.ok(content.includes(needle), `${description} must be present in content.js`);
 }
@@ -52,6 +57,8 @@ for (const [needle, description] of [
 assert.ok(background.includes('DEFAULT_STATS'));
 assert.ok(background.includes('todaySkipped'));
 assert.ok(background.includes('totalSkipped'));
+assert.ok(background.includes('AD_ACCELERATED'));
+assert.ok(background.includes('acceleratedAds'));
 assert.ok(background.includes('AD_SKIPPED'));
 assert.ok(background.includes('RESET_STATS'));
 assert.ok(popup.includes('GET_STATE'));

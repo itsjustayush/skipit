@@ -1,58 +1,67 @@
 # SkipIt
 
-SkipIt is a small Manifest V3 extension for Chromium-based browsers. When a visible YouTube player exposes a native **Skip Ad** or overlay-close control, SkipIt activates that control automatically. It does not remove unskippable ads, intercept network requests, modify account data, or communicate with an external server.
+SkipIt is a high-performance Manifest V3 extension for Chrome and Chromium-based browsers that automatically handles YouTube ads. It clicks native **Skip Ad** and overlay-close buttons immediately, detects active ad states, mutes and accelerates ad videos up to 16×, and seeks them to the end when a duration is available.
 
-## Supported browsers
+It is specifically engineered to handle **background tabs** seamlessly—so if you are listening to music, podcasts, or tutorials in a YouTube tab while working in another tab or window, ads are muted, accelerated, and skipped without requiring you to switch back and click manually.
 
-SkipIt targets Chrome, Microsoft Edge, and other Chromium browsers that support Manifest V3. The extension is scoped to YouTube, YouTube’s mobile host, and YouTube’s no-cookie embed domain.
+---
 
-## Development installation
+## What SkipIt Does
+
+- **Auto-clicks Native Skip Controls**: Instantly triggers skip buttons (`.ytp-ad-skip-button`, modern buttons, mobile buttons, and accessible labels).
+- **Mutes & Accelerates (16×)**: As soon as an ad video starts, it mutes audio immediately and boosts video playback rate to 16×.
+- **Auto-Seeks to End**: Jumps ad media near its end timestamp to finish non-skippable or skippable ads in milliseconds.
+- **Background-Tab Resilient**: Listens directly to HTML5 video media events (`timeupdate`, `loadedmetadata`, `play`, `playing`) to bypass background tab timer throttling.
+- **Restores User Settings**: Restores your original volume, mute state, and playback rate immediately when the ad finishes.
+- **Dismisses Overlays & Popups**: Closes ad overlay banners, promo cards, and anti-adblock enforcement dialogs automatically.
+- **Modern Popup Dashboard**: Toggle autopilot on/off, inspect native skip and fast-forward statistics (today vs. all-time), and view live status.
+- **Strict Local Privacy**: Operates solely with YouTube-scoped permissions and `chrome.storage.local`. No analytics, tracking, or network requests.
+
+---
+
+## Installation (Unpacked)
 
 1. Clone or download this repository.
-2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
-3. Enable **Developer mode**.
-4. Choose **Load unpacked** and select the repository directory.
-5. Open a YouTube video and use the extension popup to confirm that SkipIt is enabled.
+2. Open your Chromium browser and navigate to:
+   - Chrome: `chrome://extensions`
+   - Edge: `edge://extensions`
+   - Brave / Opera / Vivaldi: `chrome://extensions`
+3. Toggle on **Developer mode** in the top-right corner.
+4. Click **Load unpacked** and select this directory (`d:\skipit`).
+5. Open any YouTube video to enjoy hands-free ad skipping.
 
-The content script starts at `document_start`, then initializes as soon as the document is available. YouTube’s single-page navigation events, DOM mutations, visibility changes, and a throttled fallback scan are all used to trigger checks.
+---
 
-## Features preserved from the original local version
+## How Background Tab Handling Works
 
-The original local implementation contributed a useful **today versus total statistics** model, a popup toggle, overlay-close selectors, mobile YouTube host coverage, and the first set of icon assets. Those capabilities are now integrated into the versioned SkipIt codebase. The original background worker also revealed a missing `DEFAULT_STATS` declaration, which is fixed here by defining and normalizing the statistics state in one place.
+Browsers typically throttle JavaScript timers (`setTimeout` and `setInterval`) to once per second (or slower) in background tabs to conserve battery.
 
-## Design notes
+SkipIt solves this by:
+1. **Hooking Media Events Directly**: Registering event listeners (`timeupdate`, `loadedmetadata`, `play`, etc.) directly on HTML5 `<video>` elements. In background tabs, decoding and audio rendering continue in real time, so these events fire continuously without timer throttling.
+2. **Decoupled Viewport Checks**: Unlike naive extensions that check if an element is inside the visible viewport, SkipIt detects when `document.visibilityState === 'hidden'` and relies on element connectivity and display styling rather than viewport intersection.
+3. **Instant Audio Muting**: Ad audio is muted before you even notice an ad has started, protecting your workflow.
 
-The implementation deliberately uses narrow, player-oriented selectors and only activates controls that are visible, connected, enabled, inside the viewport, and not contained by hidden ancestors. The extension uses local storage for the enable setting and optional activation statistics. No analytics or remote requests are included.
+---
 
-The service worker is used only for local state and statistics. It does not keep a persistent page alive. Browser scheduling and YouTube’s runtime implementation can change, so background-tab behavior must be validated against the browser versions being targeted rather than assumed to be guaranteed.
+## Testing & Validation
 
-## Validation
-
-Run the static validation and content-script smoke tests with:
+The extension includes automated syntax and smoke tests:
 
 ```bash
 npm test
 ```
 
-The test suite checks the manifest, required files, syntax, scoped permissions, version consistency, icon assets, and important implementation safeguards. It does not replace manual browser testing with a current YouTube ad because ad delivery and markup are controlled by YouTube.
+This verifies:
+- Manifest V3 specification and host permissions scoping
+- Version consistency across `manifest.json`, `package.json`, and `VERSION`
+- Content script syntax, observer patterns, and ad acceleration logic
+- Mock DOM smoke tests simulating YouTube player events and button activation
+- Service worker and popup message safety (consuming `chrome.runtime.lastError`)
 
-## Release process
+---
 
-The repository follows Semantic Versioning. The extension version in `manifest.json`, `package.json`, and `VERSION` must match the release version, and each release should have a corresponding changelog entry and Git tag.
+## Privacy & Security
 
-```bash
-npm test
-git diff --check
-git tag v0.2.1
-git push origin main --tags
-```
-
-## Console troubleshooting
-
-Most messages in a YouTube DevTools console are not produced by the page’s own extension. Messages mentioning `Grammarly.js` belong to Grammarly; `couponCollection.js`, `affiliateCashback.js`, and `chrome-extension://invalid/` belong to another installed extension; preload and `generate_204` notices belong to YouTube or the browser; and the Google Ads CORS message is part of YouTube’s own conversion request. These messages should not be “fixed” in SkipIt.
-
-The relevant extension warning is `Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.` It can occur when a content page is connected to a service worker that is asleep, has been reloaded, or belongs to an older unpacked-extension instance. SkipIt 0.2.1 consumes this error in the message callback and continues the skip action even when statistics delivery is unavailable. After updating, reload the extension on `chrome://extensions` or `edge://extensions`, then refresh the YouTube tab so the page no longer uses the old content script.
-
-## Limitations and responsibility
-
-SkipIt only acts when YouTube itself exposes a visible control that the content script can identify. It cannot skip an ad that has no skip control, and selectors may require maintenance if YouTube changes its player markup. Users are responsible for reviewing and complying with the applicable platform terms and local laws before installing or distributing the extension.
+- **Host Permissions**: Limited exclusively to `*://*.youtube.com/*` and `*://*.youtube-nocookie.com/*`.
+- **Zero Remote Communications**: Does not make any external network requests or embed third-party tracking scripts.
+- **Local Storage Only**: Statistics and enable toggles are stored strictly on your local machine.

@@ -3,38 +3,69 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SkipIt</title>
+  <title>SkipIt - YouTube Auto Ad Skipper</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <main class="panel">
-    <header class="header">
-      <img src="icons/icon-32.png" alt="SkipIt icon" width="24" height="24">
-      <div>
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img">
+          <path d="M21.2 7.1a2.5 2.5 0 0 0-1.76-1.77C17.89 4.9 12 4.9 12 4.9s-5.89 0-7.44.43A2.5 2.5 0 0 0 2.8 7.1 26 26 0 0 0 2.37 12a26 26 0 0 0 .43 4.9 2.5 2.5 0 0 0 1.76 1.77c1.55.43 7.44.43 7.44.43s5.89 0 7.44-.43a2.5 2.5 0 0 0 1.76-1.77 26 26 0 0 0 .43-4.9 26 26 0 0 0-.43-4.9Z" fill="currentColor"/>
+          <path d="m10 15.5 5-3.5-5-3.5v7Z" fill="#101010"/>
+        </svg>
+      </div>
+      <div class="topbar-info">
+        <p class="eyebrow">CHROME EXTENSION <span>·</span> v0.3.0</p>
         <h1>SkipIt</h1>
-        <p>Automatic YouTube skip controls</p>
       </div>
     </header>
 
-    <label class="switch-row" for="enabled-toggle">
-      <span>Auto-skip controls</span>
-      <input id="enabled-toggle" type="checkbox" role="switch">
-    </label>
-
-    <section class="stats" aria-live="polite">
-      <div>
-        <span class="label">Skipped today</span>
-        <strong id="today">0</strong>
+    <section class="control-card" aria-labelledby="toggle-title">
+      <div class="control-copy">
+        <h2 id="toggle-title">Ad Autopilot</h2>
+        <p id="state-description">Auto-skips & fast-forwards ads at 16×</p>
       </div>
-      <div>
-        <span class="label">Total skipped</span>
-        <strong id="total">0</strong>
-      </div>
+      <label class="switch" aria-label="Toggle Ad Autopilot">
+        <input id="enabled-toggle" type="checkbox" checked role="switch">
+        <span class="slider"></span>
+      </label>
     </section>
 
-    <button id="reset" type="button">Reset statistics</button>
-    <p id="status" class="status" role="status"></p>
-    <p class="notice">Only visible YouTube skip or overlay-close controls are activated. Unskippable ads remain unchanged.</p>
+    <div class="stats-grid" aria-label="Local usage statistics">
+      <div class="stat-card">
+        <p class="stat-label">NATIVE SKIPS</p>
+        <div class="stat-main">
+          <span class="stat-value" id="today">0</span>
+          <span class="stat-sub">today</span>
+        </div>
+        <p class="stat-alltime"><span id="total">0</span> all-time</p>
+      </div>
+
+      <div class="stat-card">
+        <p class="stat-label">FAST-FORWARDED</p>
+        <div class="stat-main">
+          <span class="stat-value" id="accelerated">0</span>
+          <span class="stat-sub">today</span>
+        </div>
+        <p class="stat-alltime"><span id="total-accelerated">0</span> all-time</p>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <div class="status-line">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Active on YouTube</span>
+      </div>
+      <button id="reset" class="reset-button" type="button">Reset</button>
+    </div>
+
+    <p id="status" class="toast-status" role="status" aria-live="polite"></p>
+
+    <footer>
+      <p class="feature-note">Clicks native skip buttons, mutes & accelerates ad videos up to 16×, and seeks to the end. Works seamlessly in background tabs.</p>
+      <p class="privacy-note">100% private. All statistics and settings stay in your browser.</p>
+    </footer>
   </main>
   <script src="popup.js"></script>
 </body>

@@ -2,6 +2,16 @@
 
 All notable changes to SkipIt are documented here. The project follows [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-10-20
+
+### Added
+
+- Layered ad autopilot: native Skip Ad button clicking, ad overlay and promo dismissal, ad-state detection, muted 16× acceleration, and seek-to-end for ad media.
+- Seamless background tab ad handling: does not restrict checks to visible viewports when the document is hidden; attaches directly to `<video>` events (`timeupdate`, `loadedmetadata`, `play`, `playing`) to bypass browser timer throttling in background tabs.
+- Automatic restoration of user media preferences: preserves and restores the original volume, muted state, and playback rate immediately when the ad session concludes.
+- Modern dark popup UI with YouTube red brand mark, live activation dot, real-time toggle switch, and dual-category statistics (native skips and fast-forwarded ads).
+- Anti-adblock and promo enforcement modal auto-dismissal.
+
 ## [0.2.1] - 2026-08-18
 
 ### Fixed
