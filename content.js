@@ -3,8 +3,8 @@
 
   const CONFIG = Object.freeze({
     debounceMs: 30,
-    fallbackIntervalMs: 180,
-    clickCooldownMs: 120,
+    fallbackIntervalMs: 150,
+    clickCooldownMs: 100,
     adPlaybackRate: 16,
     debug: false
   });
@@ -17,13 +17,15 @@
     '.videoAdUiSkipButton',
     'button[id^="skip-button"]',
     'button[class*="skip-button"]',
+    'button[class*="ytp-ad-skip"]',
+    '.ytp-ad-skip-button-container button',
+    '.ytp-ad-skip-button-slot button',
+    '.ytp-ad-skip-button-slot',
+    'button.ytp-ad-skip-button-text',
     'button[aria-label*="Skip ad" i]',
     '[role="button"][aria-label*="Skip ad" i]',
     'button[data-tooltip*="Skip" i]',
-    '[role="button"][data-tooltip*="Skip" i]',
-    '.ytp-ad-skip-button-container button',
-    '.ytp-ad-skip-button-slot button',
-    'button.ytp-ad-skip-button-text'
+    '[role="button"][data-tooltip*="Skip" i]'
   ];
 
   const CLOSE_SELECTORS = [
@@ -108,9 +110,23 @@
     return rect.width > 0 && rect.height > 0;
   };
 
+  const queryOne = (selector, root = document) => {
+    try {
+      if (typeof root?.querySelector === 'function') return root.querySelector(selector);
+      if (typeof root?.querySelectorAll === 'function') return root.querySelectorAll(selector)[0] || null;
+    } catch (_e) {}
+    return null;
+  };
+
   const getSearchRoots = () => {
     const roots = PLAYER_SELECTORS
-      .flatMap((selector) => Array.from(document.querySelectorAll(selector)))
+      .flatMap((selector) => {
+        try {
+          return Array.from(document.querySelectorAll(selector));
+        } catch (_e) {
+          return [];
+        }
+      })
       .filter((element, index, all) => all.indexOf(element) === index);
     return roots.length > 0 ? roots : [document];
   };
@@ -170,14 +186,23 @@
   };
 
   const hasAdMarker = (roots) => {
+    const player = queryOne('#movie_player, .html5-video-player');
+    if (player && player.classList && (player.classList.contains('ad-showing') || player.classList.contains('ad-interrupting'))) {
+      return true;
+    }
+
+    const overlay = queryOne('.ad-showing, .ad-interrupting, .ytp-ad-player-overlay, .ytp-ad-player-overlay-layout, .ytp-ad-preview-container, .videoAdUi');
+    if (overlay) {
+      const style = window.getComputedStyle(overlay);
+      if (style.display !== 'none' && style.visibility !== 'hidden') return true;
+    }
+
     for (const root of roots) {
-      if (root !== document && (root.classList?.contains('ad-showing') || root.classList?.contains('ad-interrupting'))) {
+      if (root !== document && root.classList && (root.classList.contains('ad-showing') || root.classList.contains('ad-interrupting'))) {
         return true;
       }
       for (const selector of AD_STATE_SELECTORS) {
-        const marker = typeof root.querySelector === 'function'
-          ? root.querySelector(selector)
-          : root.querySelectorAll(selector)[0];
+        const marker = queryOne(selector, root);
         if (marker && (selector === '.ad-showing' || selector === '.ad-interrupting' || selector === '.ytp-ad-player-overlay' || selector === '.ytp-ad-preview-container' || selector === '.videoAdUi')) {
           const style = window.getComputedStyle(marker);
           if (style.display !== 'none' && style.visibility !== 'hidden') return true;
@@ -207,6 +232,7 @@
     const videos = [];
     const seen = new Set();
     for (const root of roots) {
+      if (!root || typeof root.querySelectorAll !== 'function') continue;
       const candidates = root.querySelectorAll('video');
       for (const video of candidates) {
         if (!seen.has(video)) {
@@ -231,8 +257,10 @@
       try {
         video.muted = true;
         video.playbackRate = CONFIG.adPlaybackRate;
-        if (Number.isFinite(video.duration) && video.duration > 0 && video.currentTime < video.duration - 0.1) {
-          video.currentTime = Math.max(0, video.duration - 0.05);
+        if (Number.isFinite(video.duration) && video.duration > 0) {
+          if (video.currentTime < video.duration - 0.05) {
+            video.currentTime = video.duration;
+          }
         }
         if (video.paused) {
           const playResult = video.play();

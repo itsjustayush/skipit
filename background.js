@@ -50,7 +50,11 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === 'AD_SKIPPED' || message?.type === 'AD_ACCELERATED') {
-    updateStats(message.type, (stats) => sendResponse({ ok: !chrome.runtime.lastError, stats }));
+    updateStats(message.type, (stats) => {
+      try {
+        sendResponse({ ok: !chrome.runtime.lastError, stats });
+      } catch (_e) {}
+    });
     return true;
   }
 
@@ -60,20 +64,32 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 
   if (message?.type === 'GET_STATE' || message?.type === 'GET_STATS') {
-    readState((state) => sendResponse(state));
+    readState((state) => {
+      try {
+        sendResponse(state);
+      } catch (_e) {}
+    });
     return true;
   }
 
   if (message?.type === 'TOGGLE_ENABLED') {
     const enabled = message.enabled !== false;
-    chrome.storage.local.set({ enabled }, () => sendResponse({ ok: !chrome.runtime.lastError, enabled }));
+    chrome.storage.local.set({ enabled }, () => {
+      try {
+        sendResponse({ ok: !chrome.runtime.lastError, enabled });
+      } catch (_e) {}
+    });
     return true;
   }
 
   if (message?.type === 'RESET_STATS') {
     readState(({ enabled }) => {
       const stats = { ...DEFAULT_STATS, today: todayKey() };
-      chrome.storage.local.set({ enabled, stats }, () => sendResponse({ ok: !chrome.runtime.lastError, enabled, stats }));
+      chrome.storage.local.set({ enabled, stats }, () => {
+        try {
+          sendResponse({ ok: !chrome.runtime.lastError, enabled, stats });
+        } catch (_e) {}
+      });
     });
     return true;
   }
