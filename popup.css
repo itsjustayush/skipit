@@ -1,4 +1,4 @@
-/* Neo-Brutalist Design System for SkipIt */
+/* Neo-Brutalist Design System for SkipIt v1.0.0 */
 :root {
   --bg: #0c0c0e;
   --surface: #18181c;
@@ -22,7 +22,7 @@
 }
 
 body {
-  width: 324px;
+  width: 336px;
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -271,7 +271,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .brutal-pill {
@@ -301,7 +301,7 @@ body {
 }
 
 .status-caption {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.02em;
   color: #e6e6ea;
@@ -315,9 +315,9 @@ body {
   border: 2px solid var(--border);
   box-shadow: var(--shadow-sm);
   border-radius: 3px;
-  padding: 5px 11px;
+  padding: 5px 10px;
   font-family: inherit;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -338,14 +338,176 @@ body {
 
 /* Toast Feedback */
 .toast-feedback {
-  min-height: 16px;
-  margin: 4px 0 8px;
+  min-height: 14px;
+  margin: 3px 0 8px;
   font-family: ui-monospace, monospace;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--green);
   text-align: right;
   text-transform: uppercase;
+}
+
+/* Filter Card Section */
+.filter-card {
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 2px solid #2a2a30;
+  border-left: 3px solid var(--yellow);
+  background: #141418;
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.filter-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.chip-label {
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  color: var(--yellow);
+  text-transform: uppercase;
+}
+
+.filter-header h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.brutal-mini-btn {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1.5px solid #33333a;
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 1.5px 1.5px 0px #000000;
+  transition: background 0.1s, color 0.1s, transform 0.08s;
+}
+
+.brutal-mini-btn:hover {
+  background: #2a2a32;
+  color: #ffffff;
+}
+
+.brutal-mini-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0.5px 0.5px 0px #000000;
+}
+
+/* Preset Chips */
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.preset-chip {
+  background: var(--surface);
+  color: #b0b0ba;
+  border: 1.5px solid #303038;
+  border-radius: 3px;
+  padding: 3px 7px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 1.5px 1.5px 0px #000000;
+  transition: all 0.1s ease;
+}
+
+.preset-chip:hover {
+  background: #25252c;
+  color: #ffffff;
+}
+
+.preset-chip.active {
+  background: var(--yellow);
+  color: #000000;
+  border-color: #000000;
+  font-weight: 900;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+/* Sliders */
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.slider-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.slider-val {
+  font-family: ui-monospace, monospace;
+  color: var(--yellow);
+  font-weight: 800;
+}
+
+/* Custom Brutal Range Input */
+.brutal-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #24242c;
+  border: 1px solid #000000;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.brutal-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 2px;
+  box-shadow: 1.5px 1.5px 0px #000000;
+  transition: background 0.1s, transform 0.08s;
+  cursor: pointer;
+}
+
+.brutal-range:focus::-webkit-slider-thumb {
+  background: var(--yellow);
+}
+
+.brutal-range::-webkit-slider-thumb:hover {
+  background: var(--yellow);
+  transform: scale(1.15);
 }
 
 /* Footer */

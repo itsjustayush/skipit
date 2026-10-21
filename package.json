@@ -1,8 +1,8 @@
 {
   "name": "skipit",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Manifest V3 YouTube skip-control and ad fast-forward extension for Chrome and Edge",
+  "description": "Manifest V3 YouTube ad autopilot, skip control, and video visual enhancer for Chromium browsers",
   "scripts": {
     "test": "node tests/validate.mjs && node tests/content-smoke.mjs"
   }

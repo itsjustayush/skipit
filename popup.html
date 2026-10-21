@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SkipIt // Ad Autopilot</title>
+  <title>SkipIt // v1.0.0 Ad Autopilot & Enhancer</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -19,7 +19,7 @@
       <div class="header-text">
         <div class="badge-row">
           <span class="badge badge-accent">AUTOPILOT</span>
-          <span class="badge badge-outline">v0.3.0</span>
+          <span class="badge badge-outline">v1.0.0</span>
         </div>
         <h1 class="glitch-title">SKIPIT<span class="dot">.</span></h1>
       </div>
@@ -64,23 +64,78 @@
       </div>
     </div>
 
-    <!-- Live Status & Action Row -->
+    <!-- Live Status & Stats Reset -->
     <div class="action-bar">
       <div class="brutal-pill status-pill">
         <span class="status-indicator" id="status-dot"></span>
         <span class="status-caption" id="status-text">Active on YouTube</span>
       </div>
-      <button id="reset" class="brutal-button reset-btn" type="button">RESET</button>
+      <button id="reset" class="brutal-button reset-btn" type="button">RESET STATS</button>
     </div>
 
     <!-- Dynamic Toast Feedback -->
     <p id="status" class="toast-feedback" role="status" aria-live="polite"></p>
 
+    <!-- Custom Video Filters (Neo-Brutalist Card) -->
+    <section class="brutal-card filter-card" aria-labelledby="filter-title">
+      <div class="filter-header">
+        <div class="filter-title-group">
+          <span class="chip-label">DISPLAY FX</span>
+          <h2 id="filter-title">VIDEO ENHANCER</h2>
+        </div>
+        <button id="reset-filters" class="brutal-mini-btn" type="button" title="Reset all video filters">CLEAR</button>
+      </div>
+
+      <!-- Presets -->
+      <div class="preset-row" aria-label="Filter presets">
+        <button class="preset-chip active" data-preset="normal" type="button">OFF</button>
+        <button class="preset-chip" data-preset="night" type="button">NIGHT</button>
+        <button class="preset-chip" data-preset="blue-cut" type="button">WARM / EYE CARE</button>
+        <button class="preset-chip" data-preset="vivid" type="button">VIVID</button>
+        <button class="preset-chip" data-preset="mono" type="button">B&W</button>
+      </div>
+
+      <!-- Sliders List -->
+      <div class="slider-group">
+        <div class="slider-row">
+          <div class="slider-meta">
+            <label for="filter-brightness">BRIGHTNESS</label>
+            <span class="slider-val" id="val-brightness">100%</span>
+          </div>
+          <input id="filter-brightness" type="range" min="50" max="150" value="100" class="brutal-range">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-meta">
+            <label for="filter-contrast">CONTRAST</label>
+            <span class="slider-val" id="val-contrast">100%</span>
+          </div>
+          <input id="filter-contrast" type="range" min="50" max="150" value="100" class="brutal-range">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-meta">
+            <label for="filter-saturation">SATURATION</label>
+            <span class="slider-val" id="val-saturation">100%</span>
+          </div>
+          <input id="filter-saturation" type="range" min="0" max="200" value="100" class="brutal-range">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-meta">
+            <label for="filter-warmth">WARMTH (BLUE LIGHT CUT)</label>
+            <span class="slider-val" id="val-warmth">0%</span>
+          </div>
+          <input id="filter-warmth" type="range" min="0" max="100" value="0" class="brutal-range">
+        </div>
+      </div>
+    </section>
+
     <!-- Brutalist Footer -->
     <footer class="brutal-footer">
-      <p class="manifesto">Instant native clicks + 16× muted speed + auto-seek. Optimized for background tabs.</p>
+      <p class="manifesto">Instant native clicks + 16× fast-forward + CSS video enhancements. Operates in background tabs.</p>
       <div class="footer-meta">
-        <span class="sec-label">🔒 100% LOCAL</span>
+        <span class="sec-label">🔒 100% LOCAL STORAGE</span>
         <span class="sec-label">ZERO TELEMETRY</span>
       </div>
     </footer>

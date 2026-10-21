@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SkipIt",
-  "version": "0.3.0",
-  "description": "Automatically clicks YouTube Skip Ad buttons, closes overlays, mutes, accelerates, and auto-seeks ad video in foreground and background tabs.",
+  "version": "1.0.0",
+  "description": "YouTube Ad Autopilot & Custom Video Enhancer: instant skip clicks, muted 16× acceleration, background tab support, and live visual filters.",
   "action": {
     "default_title": "SkipIt",
     "default_popup": "popup.html",

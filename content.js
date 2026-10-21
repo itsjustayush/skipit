@@ -9,6 +9,15 @@
     debug: false
   });
 
+  const DEFAULT_FILTERS = Object.freeze({
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    grayscale: 0,
+    sepia: 0,
+    temperature: 0
+  });
+
   const SKIP_SELECTORS = [
     '.ytp-ad-skip-button',
     '.ytp-ad-skip-button-modern',
@@ -65,6 +74,8 @@
   let lastActionAt = 0;
   let scanCount = 0;
   let adSessionActive = false;
+  let currentFilters = { ...DEFAULT_FILTERS };
+
   const actedOn = new WeakSet();
   const mediaStates = new WeakMap();
   const watchedVideos = new WeakSet();
@@ -75,16 +86,36 @@
 
   const getStoredEnabled = (callback) => {
     try {
-      chrome.storage.local.get({ enabled: true }, (result) => {
+      chrome.storage.local.get({ enabled: true, filters: DEFAULT_FILTERS }, (result) => {
         if (chrome.runtime.lastError) {
-          callback(true);
+          callback(true, { ...DEFAULT_FILTERS });
           return;
         }
-        callback(result.enabled !== false);
+        callback(result.enabled !== false, result.filters || { ...DEFAULT_FILTERS });
       });
     } catch (_error) {
-      callback(true);
+      callback(true, { ...DEFAULT_FILTERS });
     }
+  };
+
+  const applyVideoFilters = () => {
+    try {
+      const { brightness = 100, contrast = 100, saturation = 100, grayscale = 0, sepia = 0, temperature = 0 } = currentFilters;
+      const isDefault = brightness === 100 && contrast === 100 && saturation === 100 && grayscale === 0 && sepia === 0 && temperature === 0;
+
+      let filterString = '';
+      if (!isDefault) {
+        filterString = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) grayscale(${grayscale}%) sepia(${sepia}%)`;
+        if (temperature !== 0) {
+          filterString += ` hue-rotate(${temperature * -0.5}deg)`;
+        }
+      }
+
+      const videos = document.querySelectorAll('video');
+      for (const video of videos) {
+        video.style.filter = filterString;
+      }
+    } catch (_e) {}
   };
 
   const isVisibleAndInteractive = (element) => {
@@ -187,16 +218,16 @@
     actedOn.add(element);
     lastActionAt = Date.now();
     try {
-      // 1. Direct and pointer-sequence click on element
+      // 1. Full click & pointer pipeline
       dispatchFullClick(element);
 
-      // 2. If inside a button slot or container, click the parent as well
+      // 2. Click parent container slot if present
       const slot = element.closest?.('.ytp-ad-skip-button-slot, .ytp-ad-skip-button-container');
       if (slot && slot !== element) {
         dispatchFullClick(slot);
       }
 
-      // 3. Proactively call player skipAd if available
+      // 3. Native player skipAd invocation
       const player = queryOne('#movie_player');
       if (typeof player?.skipAd === 'function') {
         try { player.skipAd(); } catch (_e) {}
@@ -268,6 +299,9 @@
         }
       }
     }
+    if (videos.length > 0) {
+      applyVideoFilters();
+    }
     return videos;
   };
 
@@ -291,7 +325,6 @@
           }
         }
 
-        // Call player skipAd if exposed
         const player = queryOne('#movie_player');
         if (typeof player?.skipAd === 'function') {
           try { player.skipAd(); } catch (_e) {}
@@ -324,7 +357,6 @@
         video.muted = state.muted;
         video.volume = state.volume;
         video.playbackRate = state.rate;
-        // Kickstart playback immediately if paused during ad-to-main video handoff
         if (video.paused) {
           const playPromise = video.play();
           playPromise?.catch?.(() => {});
@@ -334,7 +366,7 @@
       }
       mediaStates.delete(video);
     }
-    // Follow-up unpause checks to eliminate any lingering replay lull
+    applyVideoFilters();
     window.setTimeout(() => kickstartPlayback(videos), 30);
     window.setTimeout(() => kickstartPlayback(videos), 100);
   };
@@ -429,20 +461,31 @@
   };
 
   const initialize = () => {
-    getStoredEnabled((storedEnabled) => {
+    getStoredEnabled((storedEnabled, storedFilters) => {
+      currentFilters = storedFilters || { ...DEFAULT_FILTERS };
       applyEnabled(storedEnabled);
       setupStyle();
       setupObserver();
+      applyVideoFilters();
       scan('initial');
       window.setTimeout(() => scan('delayed-initial'), 150);
     });
   };
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === 'local' && changes.enabled) applyEnabled(changes.enabled.newValue);
+    if (areaName === 'local') {
+      if (changes.enabled) applyEnabled(changes.enabled.newValue);
+      if (changes.filters) {
+        currentFilters = { ...DEFAULT_FILTERS, ...(changes.filters.newValue || {}) };
+        applyVideoFilters();
+      }
+    }
   });
 
-  window.addEventListener('yt-navigate-finish', () => scheduleScan('yt-navigate-finish', true));
+  window.addEventListener('yt-navigate-finish', () => {
+    applyVideoFilters();
+    scheduleScan('yt-navigate-finish', true);
+  });
   window.addEventListener('yt-page-data-updated', () => scheduleScan('yt-page-data-updated', true));
   window.addEventListener('popstate', () => scheduleScan('popstate', true));
   document.addEventListener('visibilitychange', () => scheduleScan('visibilitychange', false));
