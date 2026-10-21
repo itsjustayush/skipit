@@ -2,9 +2,9 @@
   'use strict';
 
   const CONFIG = Object.freeze({
-    debounceMs: 30,
-    fallbackIntervalMs: 150,
-    clickCooldownMs: 100,
+    throttleMs: 12,
+    fallbackIntervalMs: 120,
+    clickCooldownMs: 60,
     adPlaybackRate: 16,
     debug: false
   });
@@ -60,7 +60,7 @@
 
   let enabled = true;
   let observer = null;
-  let debounceTimer = null;
+  let scanPending = false;
   let lastScanAt = 0;
   let lastActionAt = 0;
   let scanCount = 0;
@@ -167,6 +167,18 @@
     }
   };
 
+  const dispatchFullClick = (target) => {
+    if (!target) return;
+    try { target.click(); } catch (_e) {}
+    try {
+      target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+      target.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+      target.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true }));
+      target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+      target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    } catch (_e) {}
+  };
+
   const activate = (element, kind) => {
     if (!enabled || actedOn.has(element)) return false;
     if (Date.now() - lastActionAt < CONFIG.clickCooldownMs) return false;
@@ -175,7 +187,21 @@
     actedOn.add(element);
     lastActionAt = Date.now();
     try {
-      element.click();
+      // 1. Direct and pointer-sequence click on element
+      dispatchFullClick(element);
+
+      // 2. If inside a button slot or container, click the parent as well
+      const slot = element.closest?.('.ytp-ad-skip-button-slot, .ytp-ad-skip-button-container');
+      if (slot && slot !== element) {
+        dispatchFullClick(slot);
+      }
+
+      // 3. Proactively call player skipAd if available
+      const player = queryOne('#movie_player');
+      if (typeof player?.skipAd === 'function') {
+        try { player.skipAd(); } catch (_e) {}
+      }
+
       report('AD_SKIPPED', kind);
       log('Activated', kind, element);
       return true;
@@ -217,7 +243,7 @@
     watchedVideos.add(video);
 
     const onMediaUpdate = () => {
-      if (enabled) scheduleScan('media-event');
+      if (enabled) scheduleScan('media-event', false);
     };
 
     video.addEventListener('timeupdate', onMediaUpdate);
@@ -257,17 +283,35 @@
       try {
         video.muted = true;
         video.playbackRate = CONFIG.adPlaybackRate;
+
+        // Auto-seek near the end of the ad to trigger instant completion
         if (Number.isFinite(video.duration) && video.duration > 0) {
           if (video.currentTime < video.duration - 0.05) {
-            video.currentTime = video.duration;
+            video.currentTime = Math.max(0, video.duration - 0.02);
           }
         }
+
+        // Call player skipAd if exposed
+        const player = queryOne('#movie_player');
+        if (typeof player?.skipAd === 'function') {
+          try { player.skipAd(); } catch (_e) {}
+        }
+
         if (video.paused) {
           const playResult = video.play();
           playResult?.catch?.(() => {});
         }
       } catch (error) {
         log('Ad media acceleration failed:', error);
+      }
+    }
+  };
+
+  const kickstartPlayback = (videos) => {
+    for (const video of videos) {
+      if (video && video.paused && !hasAdMarker([video.parentElement || document])) {
+        const p = video.play();
+        p?.catch?.(() => {});
       }
     }
   };
@@ -280,11 +324,19 @@
         video.muted = state.muted;
         video.volume = state.volume;
         video.playbackRate = state.rate;
+        // Kickstart playback immediately if paused during ad-to-main video handoff
+        if (video.paused) {
+          const playPromise = video.play();
+          playPromise?.catch?.(() => {});
+        }
       } catch (error) {
         log('Media restore failed:', error);
       }
       mediaStates.delete(video);
     }
+    // Follow-up unpause checks to eliminate any lingering replay lull
+    window.setTimeout(() => kickstartPlayback(videos), 30);
+    window.setTimeout(() => kickstartPlayback(videos), 100);
   };
 
   const scan = (reason) => {
@@ -319,13 +371,18 @@
     return activated;
   };
 
-  const scheduleScan = (reason) => {
+  const scheduleScan = (reason, immediate = false) => {
     if (!enabled) return;
-    if (debounceTimer !== null) window.clearTimeout(debounceTimer);
-    debounceTimer = window.setTimeout(() => {
-      debounceTimer = null;
+    if (immediate) {
       scan(reason);
-    }, CONFIG.debounceMs);
+      return;
+    }
+    if (scanPending) return;
+    scanPending = true;
+    window.setTimeout(() => {
+      scanPending = false;
+      scan(reason);
+    }, CONFIG.throttleMs);
   };
 
   const setupStyle = () => {
@@ -351,7 +408,7 @@
     if (observer || !document.documentElement) return;
     observer = new MutationObserver((mutations) => {
       const meaningful = mutations.some((mutation) => mutation.type === 'childList' || mutation.type === 'attributes');
-      if (meaningful) scheduleScan('mutation');
+      if (meaningful) scheduleScan('mutation', false);
     });
     observer.observe(document.documentElement, {
       childList: true,
@@ -364,7 +421,7 @@
   const applyEnabled = (nextEnabled) => {
     enabled = nextEnabled !== false;
     if (enabled) {
-      scheduleScan('enabled');
+      scheduleScan('enabled', true);
     } else {
       restoreMedia(getVideos(getSearchRoots()));
       adSessionActive = false;
@@ -377,7 +434,7 @@
       setupStyle();
       setupObserver();
       scan('initial');
-      window.setTimeout(() => scan('delayed-initial'), 250);
+      window.setTimeout(() => scan('delayed-initial'), 150);
     });
   };
 
@@ -385,10 +442,10 @@
     if (areaName === 'local' && changes.enabled) applyEnabled(changes.enabled.newValue);
   });
 
-  window.addEventListener('yt-navigate-finish', () => scheduleScan('yt-navigate-finish'));
-  window.addEventListener('yt-page-data-updated', () => scheduleScan('yt-page-data-updated'));
-  window.addEventListener('popstate', () => scheduleScan('popstate'));
-  document.addEventListener('visibilitychange', () => scheduleScan('visibilitychange'));
+  window.addEventListener('yt-navigate-finish', () => scheduleScan('yt-navigate-finish', true));
+  window.addEventListener('yt-page-data-updated', () => scheduleScan('yt-page-data-updated', true));
+  window.addEventListener('popstate', () => scheduleScan('popstate', true));
+  document.addEventListener('visibilitychange', () => scheduleScan('visibilitychange', false));
 
   window.setInterval(() => {
     if (enabled && Date.now() - lastScanAt >= CONFIG.fallbackIntervalMs) scan('fallback');

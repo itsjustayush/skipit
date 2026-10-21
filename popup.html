@@ -3,68 +3,86 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SkipIt - YouTube Auto Ad Skipper</title>
+  <title>SkipIt // Ad Autopilot</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <main class="panel">
-    <header class="topbar">
-      <div class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" role="img">
+  <main class="brutal-panel">
+    <!-- Header -->
+    <header class="brutal-header">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
           <path d="M21.2 7.1a2.5 2.5 0 0 0-1.76-1.77C17.89 4.9 12 4.9 12 4.9s-5.89 0-7.44.43A2.5 2.5 0 0 0 2.8 7.1 26 26 0 0 0 2.37 12a26 26 0 0 0 .43 4.9 2.5 2.5 0 0 0 1.76 1.77c1.55.43 7.44.43 7.44.43s5.89 0 7.44-.43a2.5 2.5 0 0 0 1.76-1.77 26 26 0 0 0 .43-4.9 26 26 0 0 0-.43-4.9Z" fill="currentColor"/>
-          <path d="m10 15.5 5-3.5-5-3.5v7Z" fill="#101010"/>
+          <path d="m10 15.5 5-3.5-5-3.5v7Z" fill="#000"/>
         </svg>
       </div>
-      <div class="topbar-info">
-        <p class="eyebrow">CHROME EXTENSION <span>·</span> v0.3.0</p>
-        <h1>SkipIt</h1>
+      <div class="header-text">
+        <div class="badge-row">
+          <span class="badge badge-accent">AUTOPILOT</span>
+          <span class="badge badge-outline">v0.3.0</span>
+        </div>
+        <h1 class="glitch-title">SKIPIT<span class="dot">.</span></h1>
       </div>
     </header>
 
-    <section class="control-card" aria-labelledby="toggle-title">
-      <div class="control-copy">
-        <h2 id="toggle-title">Ad Autopilot</h2>
+    <!-- Master Switch Card -->
+    <section class="brutal-card control-card" aria-labelledby="toggle-title">
+      <div class="control-label-group">
+        <h2 id="toggle-title">AD AUTOPILOT</h2>
         <p id="state-description">Auto-skips & fast-forwards ads at 16×</p>
       </div>
-      <label class="switch" aria-label="Toggle Ad Autopilot">
+      <label class="brutal-switch" aria-label="Toggle Ad Autopilot">
         <input id="enabled-toggle" type="checkbox" checked role="switch">
-        <span class="slider"></span>
+        <span class="switch-track">
+          <span class="switch-knob"></span>
+        </span>
       </label>
     </section>
 
-    <div class="stats-grid" aria-label="Local usage statistics">
-      <div class="stat-card">
-        <p class="stat-label">NATIVE SKIPS</p>
-        <div class="stat-main">
-          <span class="stat-value" id="today">0</span>
-          <span class="stat-sub">today</span>
+    <!-- Stats 2-Column Grid -->
+    <div class="stats-grid" aria-label="Usage stats">
+      <div class="brutal-card stat-box stat-skips">
+        <div class="stat-tag">NATIVE SKIPS</div>
+        <div class="stat-num-row">
+          <span class="stat-big" id="today">0</span>
+          <span class="stat-unit">today</span>
         </div>
-        <p class="stat-alltime"><span id="total">0</span> all-time</p>
+        <div class="stat-footer">
+          <span class="stat-sub"><strong id="total">0</strong> all-time</span>
+        </div>
       </div>
 
-      <div class="stat-card">
-        <p class="stat-label">FAST-FORWARDED</p>
-        <div class="stat-main">
-          <span class="stat-value" id="accelerated">0</span>
-          <span class="stat-sub">today</span>
+      <div class="brutal-card stat-box stat-accel">
+        <div class="stat-tag">16× FAST-FWD</div>
+        <div class="stat-num-row">
+          <span class="stat-big" id="accelerated">0</span>
+          <span class="stat-unit">today</span>
         </div>
-        <p class="stat-alltime"><span id="total-accelerated">0</span> all-time</p>
+        <div class="stat-footer">
+          <span class="stat-sub"><strong id="total-accelerated">0</strong> all-time</span>
+        </div>
       </div>
     </div>
 
-    <div class="action-row">
-      <div class="status-line">
-        <span class="status-dot" id="status-dot"></span>
-        <span id="status-text">Active on YouTube</span>
+    <!-- Live Status & Action Row -->
+    <div class="action-bar">
+      <div class="brutal-pill status-pill">
+        <span class="status-indicator" id="status-dot"></span>
+        <span class="status-caption" id="status-text">Active on YouTube</span>
       </div>
-      <button id="reset" class="reset-button" type="button">Reset</button>
+      <button id="reset" class="brutal-button reset-btn" type="button">RESET</button>
     </div>
 
-    <p id="status" class="toast-status" role="status" aria-live="polite"></p>
+    <!-- Dynamic Toast Feedback -->
+    <p id="status" class="toast-feedback" role="status" aria-live="polite"></p>
 
-    <footer>
-      <p class="feature-note">Clicks native skip buttons, mutes & accelerates ad videos up to 16×, and seeks to the end. Works seamlessly in background tabs.</p>
-      <p class="privacy-note">100% private. All statistics and settings stay in your browser.</p>
+    <!-- Brutalist Footer -->
+    <footer class="brutal-footer">
+      <p class="manifesto">Instant native clicks + 16× muted speed + auto-seek. Optimized for background tabs.</p>
+      <div class="footer-meta">
+        <span class="sec-label">🔒 100% LOCAL</span>
+        <span class="sec-label">ZERO TELEMETRY</span>
+      </div>
     </footer>
   </main>
   <script src="popup.js"></script>
