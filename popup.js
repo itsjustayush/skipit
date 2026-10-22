@@ -108,8 +108,24 @@ const renderFilters = (filters) => {
   }
 };
 
+const clampNumber = (val, min, max, fallback) => {
+  const num = Number(val);
+  if (!Number.isFinite(num)) return fallback;
+  return Math.max(min, Math.min(max, num));
+};
+
+const sanitizeFilters = (filters = {}) => ({
+  brightness: clampNumber(filters.brightness, 20, 200, 100),
+  contrast: clampNumber(filters.contrast, 20, 200, 100),
+  saturation: clampNumber(filters.saturation, 0, 300, 100),
+  grayscale: clampNumber(filters.grayscale, 0, 100, 0),
+  sepia: clampNumber(filters.sepia, 0, 100, 0),
+  temperature: clampNumber(filters.temperature, -100, 100, 0),
+  preset: typeof filters.preset === 'string' ? filters.preset.slice(0, 20) : 'normal'
+});
+
 const saveFilters = (newFilters) => {
-  currentFilters = { ...currentFilters, ...newFilters };
+  currentFilters = sanitizeFilters({ ...currentFilters, ...newFilters });
   chrome.storage.local.set({ filters: currentFilters }, () => {
     renderFilters(currentFilters);
   });

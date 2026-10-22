@@ -98,16 +98,28 @@
     }
   };
 
+  const clampNumber = (val, min, max, fallback) => {
+    const num = Number(val);
+    if (!Number.isFinite(num)) return fallback;
+    return Math.max(min, Math.min(max, num));
+  };
+
   const applyVideoFilters = () => {
     try {
-      const { brightness = 100, contrast = 100, saturation = 100, grayscale = 0, sepia = 0, temperature = 0 } = currentFilters;
-      const isDefault = brightness === 100 && contrast === 100 && saturation === 100 && grayscale === 0 && sepia === 0 && temperature === 0;
+      const b = clampNumber(currentFilters.brightness, 20, 200, 100);
+      const c = clampNumber(currentFilters.contrast, 20, 200, 100);
+      const s = clampNumber(currentFilters.saturation, 0, 300, 100);
+      const g = clampNumber(currentFilters.grayscale, 0, 100, 0);
+      const sep = clampNumber(currentFilters.sepia, 0, 100, 0);
+      const temp = clampNumber(currentFilters.temperature, -100, 100, 0);
+
+      const isDefault = b === 100 && c === 100 && s === 100 && g === 0 && sep === 0 && temp === 0;
 
       let filterString = '';
       if (!isDefault) {
-        filterString = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) grayscale(${grayscale}%) sepia(${sepia}%)`;
-        if (temperature !== 0) {
-          filterString += ` hue-rotate(${temperature * -0.5}deg)`;
+        filterString = `brightness(${b}%) contrast(${c}%) saturate(${s}%) grayscale(${g}%) sepia(${sep}%)`;
+        if (temp !== 0) {
+          filterString += ` hue-rotate(${temp * -0.5}deg)`;
         }
       }
 

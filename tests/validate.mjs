@@ -63,10 +63,18 @@ assert.ok(background.includes('AD_SKIPPED'));
 assert.ok(background.includes('RESET_STATS'));
 assert.ok(popup.includes('GET_STATE'));
 assert.ok(popup.includes('enabled'));
-assert.ok(!content.includes('fetch('));
 assert.ok(content.includes('chrome.runtime.lastError'));
 assert.ok(popup.includes('chrome.runtime.lastError'));
 assert.ok(!content.match(/sendMessage\([^;]+\)\.catch/));
-assert.ok(!background.includes('fetch('));
 
-console.log(`SkipIt ${version}: validation passed`);
+for (const [code, fileName] of [[content, 'content.js'], [background, 'background.js'], [popup, 'popup.js']]) {
+  assert.ok(!code.includes('fetch('), `${fileName} must not contain fetch`);
+  assert.ok(!code.includes('XMLHttpRequest'), `${fileName} must not contain XMLHttpRequest`);
+  assert.ok(!code.includes('sendBeacon'), `${fileName} must not contain sendBeacon`);
+  assert.ok(!code.includes('WebSocket'), `${fileName} must not contain WebSocket`);
+  assert.ok(!code.includes('eval('), `${fileName} must not contain eval`);
+  assert.ok(!code.includes('new Function'), `${fileName} must not contain new Function`);
+  assert.ok(!code.includes('innerHTML'), `${fileName} must not contain innerHTML`);
+}
+
+console.log(`SkipIt ${version}: validation & security checks passed`);
